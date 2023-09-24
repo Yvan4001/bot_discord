@@ -2,10 +2,13 @@ const { Client } = require("discord.js");
 const config = require("./config.json");
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
+const axios = require('axios');
 
 const client = new Client({
     intents: ['Guilds', 'GuildMessages']
 });
+
+const api = config.API_URL;
 
 client.login(config.BOT_TOKEN);
 
@@ -30,9 +33,9 @@ const commands = [{
     description: 'Recherche des informations sur un anime spécifique',
     type: 1,
     options: [{
-        name: 'nom',
+        name: 'name',
         type: 3,
-        description: 'Nom de l\'anime à rechercher',
+        description: 'Name of the anime',
         required: true,
     }]
 }];
@@ -60,9 +63,46 @@ client.on('interactionCreate', async interaction => {
     const { commandName } = interaction;
 
     if (commandName === 'anime') {
-        const animeName = interaction.options.getString('nom');
-        // Ici, faites un appel à l'API AniList ou MyAnimeList pour obtenir les informations.
-        // Convertissez les données de l'API en une réponse appropriée pour votre commande.
-        await interaction.reply(`Résultats pour ${animeName}: ...`); // Modifiez cette réponse en fonction des données obtenues.
+        const animeName = interaction.options.getString('name');
+        const api = config.API_URL_ANIME;
+        const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
+        const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
+
+        try {
+            const response = await axios.get(`${api}?q=${animeName}&sfw`);
+            const animeList = response.data.data;
+
+            if (animeList.length > 0) {
+                for (let i = 0; i < animeList.length; i++) {
+                    const anime = animeList[i];
+                    const animeId = anime.mal_id;
+                    try {
+                        const animeResponse = await axios.get(`${api}/${animeId}/full`);
+                        const animeData = animeResponse.data.data;
+            
+                        if (i === 0) {
+                            await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer}`);
+                        } else {
+                            await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer}`);
+                        }
+            
+                        // Attendez un certain temps avant d'envoyer la réponse suivante
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                    } catch (error) {
+                        if (error.response && error.response.status === 429) {
+                        // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        i--; // Répéter la même itération
+                        } else {
+                        console.error(error);
+                        }
+                    }
+                }
+            } else {
+                await interaction.reply('No anime found.');
+            }
+            } catch (error) {
+            console.error(error);
+            }
     }
 });

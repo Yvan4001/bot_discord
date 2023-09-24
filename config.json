@@ -1,4 +1,5 @@
 {
     "BOT_TOKEN": "NDczMTM1NDIwNjA4MzQ4MTYy.G3EIQk.V0B2TTu6xf9TPYNclxQeX7xXfjVpRTNk9w8tyI",
-    "CLIENT_ID": "473135420608348162"
+    "CLIENT_ID": "473135420608348162",
+    "API_URL_ANIME": "https://api.jikan.moe/v4/anime"
 }
