@@ -79,11 +79,13 @@ client.on('interactionCreate', async interaction => {
                     try {
                         const animeResponse = await axios.get(`${api}/${animeId}/full`);
                         const animeData = animeResponse.data.data;
+                        const year = animeData.year !== "null" ? `year: ${animeData.year}` : 'No information about the year';
+                        const trailer = animeData.trailer.url !== "null" ? `trailer: ${animeData.trailer.url}` : 'No trailer';
             
                         if (i === 0) {
-                            await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer}`);
+                            await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | ${year} | ${trailer}`);
                         } else {
-                            await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer}`);
+                            await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer.url}`);
                         }
             
                         // Attendez un certain temps avant d'envoyer la réponse suivante
