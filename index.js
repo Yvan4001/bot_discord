@@ -28,17 +28,34 @@ client.on('guildCreate', async guild => {
 });
 
 
-const commands = [{
-    name: 'anime',
-    description: 'Recherche des informations sur un anime spécifique',
-    type: 1,
-    options: [{
-        name: 'name',
-        type: 3,
-        description: 'Name of the anime',
-        required: true,
-    }]
-}];
+const commands = [
+    {
+        name: 'anime',
+        description: 'Search for information about an anime',
+        type: 1,
+        options: [
+            {
+                name: 'name',
+                type: 3,
+                description: 'Name of the anime',
+                required: true,
+            },
+        ],
+    },
+    {
+        name: 'manga',
+        description: 'Search for information about a manga',
+        type: 1,
+        options: [
+        {
+            name: 'name',
+            type: 3,
+            description: 'Name of the manga',
+            required: true,
+        },
+        ],
+    },
+];
 
 const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
 
@@ -102,6 +119,51 @@ client.on('interactionCreate', async interaction => {
                 }
             } else {
                 await interaction.reply('No anime found.');
+            }
+            } catch (error) {
+            console.error(error);
+            }
+    }
+
+    if (commandName === 'manga') {
+        const mangaName = interaction.options.getString('name');
+        const api = config.API_URL_MANGA;
+        const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
+        const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
+
+        try {
+            const response = await axios.get(`${api}?q=${mangaName}&sfw`);
+            const mangaList = response.data.data;
+
+            if (mangaList.length > 0) {
+                for (let i = 0; i < mangaList.length; i++) {
+                    const manga = mangaList[i];
+                    const mangaId = manga.mal_id;
+                    try {
+                        const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
+                        const mangaData = mangaResponse.data.data;
+                        const year = mangaData.prop.from.year + " - " + mangaData.prop.to.year
+            
+                        if (i === 0) {
+                            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | ${year}`);
+                        } else {
+                            await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | year: ${mangaData.year}`);
+                        }
+            
+                        // Attendez un certain temps avant d'envoyer la réponse suivante
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                    } catch (error) {
+                        if (error.response && error.response.status === 429) {
+                        // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        i--; // Répéter la même itération
+                        } else {
+                        console.error(error);
+                        }
+                    }
+                }
+            } else {
+                await interaction.reply('No manga found.');
             }
             } catch (error) {
             console.error(error);
