@@ -8,7 +8,6 @@ const client = new Client({
     intents: ['Guilds', 'GuildMessages']
 });
 
-const api = config.API_URL;
 
 client.login(config.BOT_TOKEN);
 
@@ -42,6 +41,19 @@ const commands = [
             },
         ],
     },
+    {
+        name: 'manga',
+        description: 'Search for information about a manga',
+        type: 1,
+        options: [
+            {
+                name: 'name',
+                type: 3,
+                description: 'Name of the manga',
+                required: true,
+            },
+        ],
+    }
 ];
 
 const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
@@ -51,8 +63,8 @@ const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
         console.log('Started refreshing application (/) commands.');
 
         await rest.put(
-        Routes.applicationCommands(config.CLIENT_ID),
-        { body: commands },
+            Routes.applicationCommands(config.CLIENT_ID),
+            { body: commands },
         );
 
         console.log('Successfully reloaded application (/) commands.');
@@ -85,30 +97,77 @@ client.on('interactionCreate', async interaction => {
                         const animeData = animeResponse.data.data;
                         const year = animeData.year !== "null" ? `year: ${animeData.year}` : 'No information about the year';
                         const trailer = animeData.trailer.url !== "null" ? `trailer: ${animeData.trailer.url}` : 'No trailer';
-            
+
                         if (i === 0) {
                             await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | ${year} | ${trailer}`);
                         } else {
                             await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer.url}`);
                         }
-            
+
                         // Attendez un certain temps avant d'envoyer la réponse suivante
                         await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
                     } catch (error) {
                         if (error.response && error.response.status === 429) {
-                        // Attendre un certain temps avant de réessayer en cas d'erreur 429
-                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
-                        i--; // Répéter la même itération
+                            // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                            i--; // Répéter la même itération
                         } else {
-                        console.error(error);
+                            console.error(error);
                         }
                     }
                 }
             } else {
                 await interaction.reply('No anime found.');
             }
-            } catch (error) {
+        } catch (error) {
             console.error(error);
+        }
+    }
+    else if (commandName === 'manga') {
+        const mangaName = interaction.options.getString('name');
+        const api = config.API_URL_MANGA;
+        const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
+        const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
+
+        try {
+            const response = await axios.get(`${api}?q=${mangaName}&sfw`);
+            const mangaList = response.data.data;
+
+            if (mangaList.length > 0) {
+                for (let i = 0; i < mangaList.length; i++) {
+                    const manga = mangaList[i];
+                    const mangaId = manga.mal_id;
+                    try {
+                        const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
+                        const mangaData = mangaResponse.data.data;
+
+                        const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
+                        const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
+                        const genre = mangaData.genre ? `genre: ${mangaData.genre.join(', ')}` : 'No genre information';
+
+                        if (i === 0) {
+                            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre.join(', ')}`);
+                        } else {
+                            await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${mangaData.genre.join(', ')} `);
+                        }
+
+                        // Attendez un certain temps avant d'envoyer la réponse suivante
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                    } catch (error) {
+                        if (error.response && error.response.status === 429) {
+                            // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                            i--; // Répéter la même itération
+                        } else {
+                            console.error(error);
+                        }
+                    }
+                }
+            } else {
+                await interaction.reply('No manga found.');
             }
+        } catch (error) {
+            console.error(error);
+        }
     }
 });
