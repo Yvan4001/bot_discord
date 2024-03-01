@@ -163,12 +163,12 @@ client.on('interactionCreate', async interaction => {
             if (mangaList.length > 0) {
                 if (number === 'all') {
                     for (let i = 0; i < mangaList.length; i++) {
-                        SearchManga(api, mangaList, i, interaction);
+                        SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
                     }
                 }
                 else {
                     for (let i = 0; i < number; i++) {
-                        SearchManga(api, mangaList, i, interaction);
+                        SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
                     }
                 }
             } else {
@@ -180,7 +180,7 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-async function SearchManga (api, mangaList, i, interaction) {
+async function SearchManga (api, mangaList, i, interaction, delayBetweenRequests ) {
     const manga = mangaList[i];
     const mangaId = manga.mal_id;
     try {
@@ -210,7 +210,7 @@ async function SearchManga (api, mangaList, i, interaction) {
     }
 }
 
-async function SearchAnime (api, animeList, i, interaction) {
+async function SearchAnime (api, animeList, i, interaction, delayBetweenRequests) {
     const anime = animeList[i];
     const animeId = anime.mal_id;
     try {
