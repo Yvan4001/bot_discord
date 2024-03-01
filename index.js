@@ -154,7 +154,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i <= number; i++) {
+                    for (let i = 0; i < number; i++) {
                         const anime = animeList[i];
                         const animeId = anime.mal_id;
                         try {
@@ -241,7 +241,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i <= number; i++) {
+                    for (let i = 0; i < number; i++) {
                         const manga = mangaList[i];
                         const mangaId = manga.mal_id;
                         try {
@@ -252,7 +252,11 @@ client.on('interactionCreate', async interaction => {
                             const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
                             const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
 
-                            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
+                            if (i === 0) {
+                                await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
+                            } else {
+                                await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${genre}`);
+                            }
 
                             // Attendez un certain temps avant d'envoyer la réponse suivante
                             await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
