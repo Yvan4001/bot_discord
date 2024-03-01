@@ -126,12 +126,60 @@ client.on('interactionCreate', async interaction => {
             if (animeList.length > 0) {
                 if (number === 'all') {
                     for (let i = 0; i < animeList.length; i++) {
-                        SearchAnime(api, animeList, i, interaction);
+                        const anime = animeList[i];
+                        const animeId = anime.mal_id;
+                        try {
+                            const animeResponse = await axios.get(`${api}/${animeId}/full`);
+                            const animeData = animeResponse.data.data;
+                            const year = animeData.year !== "null" ? `year: ${animeData.year}` : 'No information about the year';
+                            const trailer = animeData.trailer.url !== "null" ? `trailer: ${animeData.trailer.url}` : 'No trailer';
+
+                            if (i === 0) {
+                                await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | ${year} | ${trailer}`);
+                            } else {
+                                await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer.url}`);
+                            }
+
+                            // Attendez un certain temps avant d'envoyer la réponse suivante
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        } catch (error) {
+                            if (error.response && error.response.status === 429) {
+                                // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                                await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                                i--; // Répéter la même itération
+                            } else {
+                                console.error(error);
+                            }
+                        }
                     }
                 }
                 else {
                     for (let i = 0; i <= number; i++) {
-                        SearchAnime(api, animeList, i, interaction);
+                        const anime = animeList[i];
+                        const animeId = anime.mal_id;
+                        try {
+                            const animeResponse = await axios.get(`${api}/${animeId}/full`);
+                            const animeData = animeResponse.data.data;
+                            const year = animeData.year !== "null" ? `year: ${animeData.year}` : 'No information about the year';
+                            const trailer = animeData.trailer.url !== "null" ? `trailer: ${animeData.trailer.url}` : 'No trailer';
+
+                            if (i === 0) {
+                                await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | ${year} | ${trailer}`);
+                            } else {
+                                await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer.url}`);
+                            }
+
+                            // Attendez un certain temps avant d'envoyer la réponse suivante
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        } catch (error) {
+                            if (error.response && error.response.status === 429) {
+                                // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                                await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                                i--; // Répéter la même itération
+                            } else {
+                                console.error(error);
+                            }
+                        }
                     }
                 }
             } else {
@@ -163,12 +211,64 @@ client.on('interactionCreate', async interaction => {
             if (mangaList.length > 0) {
                 if (number === 'all') {
                     for (let i = 0; i < mangaList.length; i++) {
-                        await SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
+                        const manga = mangaList[i];
+                        const mangaId = manga.mal_id;
+                        try {
+                            const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
+                            const mangaData = mangaResponse.data.data;
+
+                            const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
+                            const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
+                            const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
+
+                            if (i === 0) {
+                                await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
+                            } else {
+                                await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${genre}`);
+                            }
+
+                            // Attendez un certain temps avant d'envoyer la réponse suivante
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        } catch (error) {
+                            if (error.response && error.response.status === 429) {
+                                // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                                await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                                i--; // Répéter la même itération
+                            } else {
+                                console.error(error);
+                            }
+                        }
                     }
                 }
                 else {
                     for (let i = 0; i <= number; i++) {
-                        await SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
+                        const manga = mangaList[i];
+                        const mangaId = manga.mal_id;
+                        try {
+                            const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
+                            const mangaData = mangaResponse.data.data;
+
+                            const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
+                            const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
+                            const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
+
+                            if (i === 0) {
+                                await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
+                            } else {
+                                await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${genre}`);
+                            }
+
+                            // Attendez un certain temps avant d'envoyer la réponse suivante
+                            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                        } catch (error) {
+                            if (error.response && error.response.status === 429) {
+                                // Attendre un certain temps avant de réessayer en cas d'erreur 429
+                                await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+                                i--; // Répéter la même itération
+                            } else {
+                                console.error(error);
+                            }
+                        }
                     }
                 }
             } else {
@@ -180,60 +280,3 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-async function SearchManga (api, mangaList, i, interaction, delayBetweenRequests ) {
-    const manga = mangaList[i];
-    const mangaId = manga.mal_id;
-    try {
-        const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
-        const mangaData = mangaResponse.data.data;
-
-        const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
-        const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
-        const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
-
-        if (i === 0) {
-            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
-        } else {
-            await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${genre}`);
-        }
-
-        // Attendez un certain temps avant d'envoyer la réponse suivante
-        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
-    } catch (error) {
-        if (error.response && error.response.status === 429) {
-            // Attendre un certain temps avant de réessayer en cas d'erreur 429
-            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
-            i--; // Répéter la même itération
-        } else {
-            console.error(error);
-        }
-    }
-}
-
-async function SearchAnime (api, animeList, i, interaction, delayBetweenRequests) {
-    const anime = animeList[i];
-    const animeId = anime.mal_id;
-    try {
-        const animeResponse = await axios.get(`${api}/${animeId}/full`);
-        const animeData = animeResponse.data.data;
-        const year = animeData.year !== "null" ? `year: ${animeData.year}` : 'No information about the year';
-        const trailer = animeData.trailer.url !== "null" ? `trailer: ${animeData.trailer.url}` : 'No trailer';
-
-        if (i === 0) {
-            await interaction.reply(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | ${year} | ${trailer}`);
-        } else {
-            await interaction.followUp(`Anime: ${animeData.title} | ${animeData.type} | source: ${animeData.source} | year: ${animeData.year} | trailer: ${animeData.trailer.url}`);
-        }
-
-        // Attendez un certain temps avant d'envoyer la réponse suivante
-        await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
-    } catch (error) {
-        if (error.response && error.response.status === 429) {
-            // Attendre un certain temps avant de réessayer en cas d'erreur 429
-            await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
-            i--; // Répéter la même itération
-        } else {
-            console.error(error);
-        }
-    }
-}
