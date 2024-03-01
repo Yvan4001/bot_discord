@@ -47,6 +47,18 @@ const commands = [
         type: 1,
         options: [
             {
+                name: 'genre'
+                , type: 3
+                , description: 'Genre of the anime'
+                , required: false
+            },
+            {
+                name: 'studio',
+                type: 3,
+                description: 'Studio searching of the anime',
+                required: false
+            },
+            {
                 name: 'name',
                 type: 3,
                 description: 'Name of the anime',
@@ -59,6 +71,18 @@ const commands = [
         description: 'Search for information about a manga',
         type: 1,
         options: [
+            {
+                name: 'genre'
+                , type: 3
+                , description: 'Genre of the manga'
+                , required: false
+            },
+            {
+                name: 'editor',
+                type: 3,
+                description: 'Editor searching of the manga',
+                required: false
+            },
             {
                 name: 'name',
                 type: 3,
