@@ -1,4 +1,5 @@
 const { Client } = require("discord.js");
+const { Permissions } = require('discord.js');
 const config = require("./config.json");
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -19,6 +20,18 @@ client.on('guildCreate', async guild => {
             Routes.applicationGuildCommands(config.CLIENT_ID, guild.id),
             { body: commands },
         );
+
+        guild.roles.create({
+            data: {
+                name: 'SEARCH_ANIME_MANGA',
+                color: 'BLUE',
+                permissions: [
+                    Permissions.FLAGS.SEND_MESSAGES,
+                    Permissions.FLAGS.VIEW_CHANNEL,
+                    Permissions.EMBED_LINKS
+                ],
+            },
+        });
 
         console.log('Successfully registered slash commands for guild:', guild.name);
     } catch (error) {
@@ -61,7 +74,7 @@ const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
 (async () => {
     try {
         console.log('Started refreshing application (/) commands.');
-
+        
         await rest.put(
             Routes.applicationCommands(config.CLIENT_ID),
             { body: commands },
