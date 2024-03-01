@@ -185,6 +185,7 @@ client.on('interactionCreate', async interaction => {
         const api = config.API_URL_MANGA;
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
+        const numberSearch = interaction.options.getString('number_search');
 
         try {
             const response = await axios.get(`${api}?q=${mangaName}&sfw`);
