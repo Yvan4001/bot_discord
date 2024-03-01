@@ -163,12 +163,12 @@ client.on('interactionCreate', async interaction => {
             if (mangaList.length > 0) {
                 if (number === 'all') {
                     for (let i = 0; i < mangaList.length; i++) {
-                        SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
+                        await SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
                     }
                 }
                 else {
                     for (let i = 0; i <= number; i++) {
-                        SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
+                        await SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
                     }
                 }
             } else {
