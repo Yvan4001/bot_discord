@@ -53,7 +53,7 @@ const commands = [
                 required: true,
             },
             {
-                name: 'number search',
+                name: 'number_search',
                 type: 3,
                 description: 'Number of the anime (all or number search)',
                 required: true
@@ -72,7 +72,7 @@ const commands = [
                 required: true,
             },
             {
-                name: 'number search',
+                name: 'number_search',
                 type: 3,
                 description: 'Number of the manga ( all or number search)',
                 required: true
@@ -105,7 +105,7 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'anime') {
         const animeName = interaction.options.getString('name');
-        const numberSearch = interaction.options.getString('number search');
+        const numberSearch = interaction.options.getString('number_search');
         const api = config.API_URL_ANIME;
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
