@@ -110,12 +110,21 @@ client.on('interactionCreate', async interaction => {
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
 
+        let number;
+        if (numberSearch === 'all') {
+            number = 'all';
+        } else if (!isNaN(numberSearch)) {
+            number = parseInt(numberSearch, 10);
+        } else {
+            console.error('Invalid number_search value');
+        }
+
         try {
             const response = await axios.get(`${api}?q=${animeName}&sfw`);
             const animeList = response.data.data;
 
             if (animeList.length > 0) {
-                if (numberSearch === 'all') {
+                if (number === 'all') {
                     for (let i = 0; i < animeList.length; i++) {
                         const anime = animeList[i];
                         const animeId = anime.mal_id;
@@ -145,7 +154,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i < numberSearch; i++) {
+                    for (let i = 0; i <= number; i++) {
                         const anime = animeList[i];
                         const animeId = anime.mal_id;
                         try {
@@ -186,13 +195,21 @@ client.on('interactionCreate', async interaction => {
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
         const numberSearch = interaction.options.getString('number_search');
+        let number;
+        if (numberSearch === 'all') {
+            number = 'all';
+        } else if (!isNaN(numberSearch)) {
+            number = parseInt(numberSearch, 10);
+        } else {
+            console.error('Invalid number_search value');
+        }
 
         try {
             const response = await axios.get(`${api}?q=${mangaName}&sfw`);
             const mangaList = response.data.data;
 
             if (mangaList.length > 0) {
-                if (numberSearch === 'all') {
+                if (number === 'all') {
                     for (let i = 0; i < mangaList.length; i++) {
                         const manga = mangaList[i];
                         const mangaId = manga.mal_id;
@@ -224,7 +241,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i < numberSearch; i++) {
+                    for (let i = 0; i <= number; i++) {
                         const manga = mangaList[i];
                         const mangaId = manga.mal_id;
                         try {
