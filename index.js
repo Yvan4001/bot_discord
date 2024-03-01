@@ -159,9 +159,9 @@ client.on('interactionCreate', async interaction => {
                         const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
 
                         if (i === 0) {
-                            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre.join(', ')}`);
+                            await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre}`);
                         } else {
-                            await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${mangaData.genre.join(', ')} `);
+                            await interaction.followUp(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${mangaData.year} | synopsis: ${mangaData.synopsis} | genre: ${genre}`);
                         }
 
                         // Attendez un certain temps avant d'envoyer la réponse suivante
