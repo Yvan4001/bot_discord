@@ -130,7 +130,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i < number; i++) {
+                    for (let i = 0; i <= number; i++) {
                         SearchAnime(api, animeList, i, interaction);
                     }
                 }
@@ -167,7 +167,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
                 else {
-                    for (let i = 0; i < number; i++) {
+                    for (let i = 0; i <= number; i++) {
                         SearchManga(api, mangaList, i, interaction, delayBetweenRequests);
                     }
                 }
