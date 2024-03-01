@@ -74,7 +74,7 @@ const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
 (async () => {
     try {
         console.log('Started refreshing application (/) commands.');
-        
+
         await rest.put(
             Routes.applicationCommands(config.CLIENT_ID),
             { body: commands },
@@ -156,7 +156,7 @@ client.on('interactionCreate', async interaction => {
 
                         const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
                         const synopsis = mangaData.synopsis ? `synopsis: ${mangaData.synopsis}` : 'No synopsis available';
-                        const genre = mangaData.genre ? `genre: ${mangaData.genre.join(', ')}` : 'No genre information';
+                        const genre = mangaData.genre && Array.isArray(mangaData.genre) ? mangaData.genre.join(', ') : 'No genre information';
 
                         if (i === 0) {
                             await interaction.reply(`Manga: ${mangaData.title} | ${mangaData.type} | source: ${mangaData.source} | year: ${year} | synopsis: ${synopsis} | genre: ${genre.join(', ')}`);
