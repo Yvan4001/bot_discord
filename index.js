@@ -4,20 +4,21 @@ const config = require("./config.json");
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const axios = require('axios');
+const env = require('dotenv').config().parsed;
 
 const client = new Client({
     intents: ['Guilds', 'GuildMessages']
 });
 
 
-client.login(config.BOT_TOKEN);
+client.login(env.BOT_TOKEN);
 
 client.on('guildCreate', async guild => {
     try {
         console.log(`Joined a new guild: ${guild.name} (${guild.id}). Registering slash commands...`);
 
         await rest.put(
-            Routes.applicationGuildCommands(config.CLIENT_ID, guild.id),
+            Routes.applicationGuildCommands(env.CLIENT_ID, guild.id),
             { body: commands },
         );
 
