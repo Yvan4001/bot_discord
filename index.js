@@ -9,7 +9,8 @@ import { readFile } from 'fs/promises';
 const configFile = await readFile(new URL('./config.json', import.meta.url), 'utf8');
 const { API_URL_ANIME, API_URL_MANGA } = JSON.parse(configFile);
 
-const env = dotenv.config().parsed;
+dotenv.config();
+const { BOT_TOKEN, CLIENT_ID } = process.env;
 
 const client = new Client({
     intents: ['Guilds', 'GuildMessages']
@@ -58,15 +59,15 @@ const commands = [
     }
 ];
 
-const rest = new REST({ version: '9' }).setToken(env.BOT_TOKEN);
-client.login(env.BOT_TOKEN);
+const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);
+client.login(BOT_TOKEN);
 
 client.on('guildCreate', async guild => {
     try {
         console.log(`Joined a new guild: ${guild.name} (${guild.id}). Registering slash commands...`);
 
         await rest.put(
-            Routes.applicationGuildCommands(env.CLIENT_ID, guild.id),
+            Routes.applicationGuildCommands(CLIENT_ID, guild.id),
             { body: commands },
         );
 
@@ -124,7 +125,7 @@ client.on('guildCreate', async guild => {
         console.log('Started refreshing application (/) commands.');
 
         await rest.put(
-            Routes.applicationCommands(env.CLIENT_ID),
+            Routes.applicationCommands(CLIENT_ID),
             { body: commands },
         );
 
