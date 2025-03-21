@@ -10,10 +10,18 @@ A powerful Discord bot that allows users to search for anime and manga informati
 - Easy-to-use Discord slash commands
 
 Add this bot to your Discord server:
-[Invite Link](https://discord.com/api/oauth2/authorize?client_id=473135420608348162&permissions=274877921280&scope=bot)
+[Invite Link](https://discord.com/oauth2/authorize?client_id=473135420608348162)
 
 ## Usage
 To use the bot, simply type `/anime` or `/manga` followed by the name of the anime or manga you want to search for. You can see the results in canals `#bot` or `#anime-manga`.
+
+## Roles and Permissions
+This bot requires the following roles:
+- `@everyone`: To receive search results in the `#bot` or `#anime-manga` channels.
+- `@everyone`: To use the slash commands `/anime` and `/manga`.
+- Send Messages: To receive search results in the `#bot` or `#anime-manga` channels.
+- View Channel: To receive search results in the `#bot` or `#anime-manga` channels.
+- Embed Links: To receive search results in the paste trailer links to corresponding research to use commands `/anime`.
 
 ## Commands
 The bot supports the following slash commands:
@@ -62,12 +70,6 @@ If you want to run or modify this bot locally:
 - Node.js (v14.x or newer)
 - Discord.js v14
 - A Discord bot token
-
-## Permissions
-The bot requires the following permissions:
-- Send Messages
-- Embed Links
-- Use Slash Commands
 
 ## Credits
 This bot uses the Jikan API to fetch anime and manga data from MyAnimeList.
