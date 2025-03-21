@@ -12,8 +12,13 @@ const { API_URL_ANIME, API_URL_MANGA } = JSON.parse(configFile);
 dotenv.config();
 const { BOT_TOKEN, CLIENT_ID } = process.env;
 
+// Update the client initialization around line 15-17
 const client = new Client({
-    intents: ['Guilds', 'GuildMessages']
+    intents: [
+        'Guilds', 
+        'GuildMessages', 
+        'MessageContent' // Add this to read message content
+    ]
 });
 
 const ALLOWED_CHANNEL_NAMES = ['bot', 'anime-manga'];
@@ -61,6 +66,55 @@ const commands = [
 
 const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);
 client.login(BOT_TOKEN);
+
+// Add below the interactionCreate event handler
+client.on('messageCreate', async message => {
+    // Ignore messages from bots to prevent loops
+    if (message.author.bot) return;
+    
+    // Check if the bot is mentioned
+    if (message.mentions.has(client.user)) {
+        // Get content without the mention
+        const content = message.content.replace(/<@!?(\d+)>/g, '').trim().toLowerCase();
+        
+        // Check for different keywords
+        if (content === 'hello' || content === 'hi') {
+            await message.reply('Hello! I\'m an Anime & Manga Search Discord Bot. Mention me with "help" to learn more about my commands!');
+        } 
+        else if (content === 'help' || content === 'commands') {
+            const helpEmbed = {
+                color: 0x0099ff,
+                title: 'Anime & Manga Search Commands',
+                description: 'Here are the commands you can use:',
+                fields: [
+                    {
+                        name: '/anime [name] [number_search]',
+                        value: 'Search for anime information. Use a number to limit results or "all" to see everything.'
+                    },
+                    {
+                        name: '/manga [name] [number_search]',
+                        value: 'Search for manga information. Use a number to limit results or "all" to see everything.'
+                    },
+                    {
+                        name: 'Examples',
+                        value: '`/anime name:Naruto number_search:3`\n`/manga name:One Piece number_search:all`'
+                    }
+                ],
+                footer: {
+                    text: 'Use these commands in #bot or #anime-manga channels for best results!'
+                }
+            };
+            
+            await message.reply({ embeds: [helpEmbed] });
+        }
+        else if (content.includes('anime') || content.includes('search anime')) {
+            await message.reply('To search for anime, use the `/anime name:[anime name] number_search:[all or number]` command!');
+        }
+        else if (content.includes('manga') || content.includes('search manga')) {
+            await message.reply('To search for manga, use the `/manga name:[manga name] number_search:[all or number]` command!');
+        }
+    }
+});
 
 client.on('guildCreate', async guild => {
     try {
@@ -321,7 +375,7 @@ client.on('interactionCreate', async interaction => {
                         const manga = mangaList[i];
                         const mangaId = manga.mal_id;
                         try {
-                            const mangaResponse = await get(`${api}/${mangaId}/full`);
+                            const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
                             const mangaData = mangaResponse.data.data;
 
                             const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
