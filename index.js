@@ -1,47 +1,21 @@
-const { Client } = require("discord.js");
-const { Permissions } = require('discord.js');
-const config = require("./config.json");
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const axios = require('axios');
-const env = require('dotenv').config().parsed;
+import { Client, PermissionsBitField } from "discord.js";
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+import axios from 'axios';
+import dotenv from 'dotenv';
+import { readFile } from 'fs/promises';
+
+
+const configFile = await readFile(new URL('./config.json', import.meta.url), 'utf8');
+const { API_URL_ANIME, API_URL_MANGA } = JSON.parse(configFile);
+
+const env = dotenv.config().parsed;
 
 const client = new Client({
     intents: ['Guilds', 'GuildMessages']
 });
 
 const ALLOWED_CHANNEL_NAMES = ['bot', 'anime-manga'];
-
-
-client.login(env.BOT_TOKEN);
-
-client.on('guildCreate', async guild => {
-    try {
-        console.log(`Joined a new guild: ${guild.name} (${guild.id}). Registering slash commands...`);
-
-        await rest.put(
-            Routes.applicationGuildCommands(env.CLIENT_ID, guild.id),
-            { body: commands },
-        );
-
-        guild.roles.create({
-            data: {
-            name: 'SEARCH_ANIME_MANGA',
-            color: 'BLUE',
-            permissions: [
-                Permissions.FLAGS.SEND_MESSAGES,
-                Permissions.FLAGS.VIEW_CHANNEL,
-                Permissions.FLAGS.EMBED_LINKS
-                ]
-            }
-        });
-
-        console.log('Successfully registered slash commands for guild:', guild.name);
-    } catch (error) {
-        console.error('Error registering slash commands on guildCreate:', error);
-    }
-});
-
 
 const commands = [
     {
@@ -85,6 +59,65 @@ const commands = [
 ];
 
 const rest = new REST({ version: '9' }).setToken(env.BOT_TOKEN);
+client.login(env.BOT_TOKEN);
+
+client.on('guildCreate', async guild => {
+    try {
+        console.log(`Joined a new guild: ${guild.name} (${guild.id}). Registering slash commands...`);
+
+        await rest.put(
+            Routes.applicationGuildCommands(env.CLIENT_ID, guild.id),
+            { body: commands },
+        );
+
+        // Create the bot role
+        const botRole = await guild.roles.create({
+            name: 'SEARCH_ANIME_MANGA',
+            color: 'Blue',
+            permissions: [
+                PermissionsBitField.FLAGS.SEND_MESSAGES,
+                PermissionsBitField.FLAGS.VIEW_CHANNEL,
+                PermissionsBitField.FLAGS.EMBED_LINKS,
+                PermissionsBitField.FLAGS.MANAGE_CHANNELS,
+                PermissionsBitField.FLAGS.MANAGE_GUILD
+            ]
+        });
+
+        // Find or create the dedicated channels inside the event handler
+        for (const channelName of ALLOWED_CHANNEL_NAMES) {
+            let channel = guild.channels.cache.find(ch => ch.name === channelName);
+
+            // Create the channel if it doesn't exist
+            if (!channel) {
+                channel = await guild.channels.create({
+                    name: channelName,
+                    type: 0, // Text channel
+                    permissionOverwrites: [
+                        {
+                            id: guild.id, // @everyone role
+                            allow: ['ViewChannel', 'ReadMessageHistory']
+                        },
+                        {
+                            id: botRole.id, // Bot role
+                            allow: ['ViewChannel', 'SendMessages', 'ManageChannels']
+                        }
+                    ]
+                });
+            } else {
+                // Update permissions for existing channel
+                await channel.permissionOverwrites.edit(botRole.id, {
+                    ViewChannel: true,
+                    SendMessages: true,
+                    ManageChannels: true
+                });
+            }
+        }
+
+        console.log('Successfully registered slash commands for guild:', guild.name);
+    } catch (error) {
+        console.error('Error registering slash commands on guildCreate:', error);
+    }
+});
 
 (async () => {
     try {
@@ -155,7 +188,7 @@ client.on('interactionCreate', async interaction => {
         //Get parameters
         const animeName = interaction.options.getString('name');
         const numberSearch = interaction.options.getString('number_search');
-        const api = config.API_URL_ANIME;
+        const api = API_URL_ANIME;
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
 
@@ -169,7 +202,7 @@ client.on('interactionCreate', async interaction => {
         }
 
         try {
-            const response = await axios.get(`${api}?q=${animeName}&sfw`);
+            const response = await get(`${api}?q=${animeName}&sfw`);
             const animeList = response.data.data;
 
             if (animeList.length > 0) {
@@ -253,7 +286,7 @@ client.on('interactionCreate', async interaction => {
             // If we redirected, make sure the original interaction is acknowledged
             if (!isAllowedChannel && !interaction.replied) {
                 await interaction.reply({
-                    content: `Search results for "${mangaName}" have been posted in #${responseChannel.name}!`,
+                    content: `Search results for "${animeName}" have been posted in #${responseChannel.name}!`,
                     ephemeral: true
                 });
             }
@@ -264,7 +297,7 @@ client.on('interactionCreate', async interaction => {
     }
     else if (commandName === 'manga') {
         const mangaName = interaction.options.getString('name');
-        const api = config.API_URL_MANGA;
+        const api = API_URL_MANGA;
         const maxRequestsPerMinute = 60; // Nombre maximal de requêtes par minute
         const delayBetweenRequests = 1000 * (60 / maxRequestsPerMinute); // Délai en millisecondes entre chaque requête
         const numberSearch = interaction.options.getString('number_search');
@@ -287,7 +320,7 @@ client.on('interactionCreate', async interaction => {
                         const manga = mangaList[i];
                         const mangaId = manga.mal_id;
                         try {
-                            const mangaResponse = await axios.get(`${api}/${mangaId}/full`);
+                            const mangaResponse = await get(`${api}/${mangaId}/full`);
                             const mangaData = mangaResponse.data.data;
 
                             const year = mangaData.year !== "null" ? `year: ${mangaData.year}` : 'No information about the year';
