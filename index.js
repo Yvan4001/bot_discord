@@ -257,7 +257,7 @@ client.on('interactionCreate', async interaction => {
         }
 
         try {
-            const response = await get(`${api}?q=${animeName}&sfw`);
+            const response = await axios.get(`${api}?q=${animeName}&sfw`);
             const animeList = response.data.data;
 
             if (animeList.length > 0) {
